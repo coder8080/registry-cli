@@ -267,14 +267,14 @@ class Registry:
                     if self.username in ["", None]
                     else (self.username, self.password)
                 ),
-                headers={*self.HEADERS, *headers},
+                headers={**self.HEADERS, **headers},
                 verify=not self.no_validate_ssl,
             )
         else:
             result: Response = self.http.request(
                 method,
                 "{0}{1}".format(self.hostname, path),
-                headers={*self.HEADERS, *headers},
+                headers={**self.HEADERS, **headers},
                 auth=(None if self.username == "" else (self.username, self.password)),
                 verify=not self.no_validate_ssl,
             )
