@@ -23,6 +23,7 @@ import requests
 import www_authenticate
 from dateutil.parser import parse
 from dateutil.tz import tzutc
+from requests import Response
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 # this is a registry manipulator, can do following:
@@ -270,7 +271,7 @@ class Registry:
                 verify=not self.no_validate_ssl,
             )
         else:
-            result = self.http.request(
+            result: Response = self.http.request(
                 method,
                 "{0}{1}".format(self.hostname, path),
                 headers=self.HEADERS,
@@ -287,7 +288,9 @@ class Registry:
             self.last_error = None
             return result
 
+        print("url", "{0}{1}".format(self.hostname, path))
         print(result)
+        print(result.json())
 
         self.last_error = result.status_code
         return None
