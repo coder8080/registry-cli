@@ -400,7 +400,6 @@ class Registry:
     def get_tag_config(self, image_name, tag):
         config_result = self.send(
             "/v2/{0}/manifests/{1}".format(image_name, tag),
-            headers={"Accept": "application/vnd.oci.image.index.v1+json"},
         )
 
         if config_result is None:
