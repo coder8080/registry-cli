@@ -257,7 +257,7 @@ class Registry:
     def create(*args, **kw):
         return Registry._create(*args, **kw)
 
-    def send(self, path, method="GET"):
+    def send(self, path, method="GET", headers: dict[str, str] = dict()):
         if "bearer" in self.auth_schemes:
             (result, self.HEADERS["Authorization"]) = self.http.bearer_request(
                 method,
@@ -267,14 +267,14 @@ class Registry:
                     if self.username in ["", None]
                     else (self.username, self.password)
                 ),
-                headers=self.HEADERS,
+                headers={*self.HEADERS, *headers},
                 verify=not self.no_validate_ssl,
             )
         else:
             result: Response = self.http.request(
                 method,
                 "{0}{1}".format(self.hostname, path),
-                headers=self.HEADERS,
+                headers={*self.HEADERS, *headers},
                 auth=(None if self.username == "" else (self.username, self.password)),
                 verify=not self.no_validate_ssl,
             )
@@ -336,7 +336,9 @@ class Registry:
 
     def get_tag_digest(self, image_name, tag):
         image_headers = self.send(
-            "/v2/{0}/manifests/{1}".format(image_name, tag), method=self.digest_method
+            "/v2/{0}/manifests/{1}".format(image_name, tag),
+            method=self.digest_method,
+            headers={"Accept": "application/vnd.oci.image.index.v1+json"},
         )
 
         if image_headers is None:
@@ -396,7 +398,10 @@ class Registry:
         return layers
 
     def get_tag_config(self, image_name, tag):
-        config_result = self.send("/v2/{0}/manifests/{1}".format(image_name, tag))
+        config_result = self.send(
+            "/v2/{0}/manifests/{1}".format(image_name, tag),
+            headers={"Accept": "application/vnd.oci.image.index.v1+json"},
+        )
 
         if config_result is None:
             print("  tag digest not found: {0}".format(self.last_error))
